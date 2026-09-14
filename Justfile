@@ -92,15 +92,15 @@ ostree-rechunk $target_image=image_name $tag=default_tag:
       --output "containers-storage:[overlay@/run/host-container-storage+/run/rpm-ostree-storage]localhost/{{ target_image }}:{{ tag }}"
 
 [private]
-image-name:
-    @echo "{{ image_name }}"
+image_name $target_image=image_name:
+    @echo "{{ target_image }}"
 
 [private]
 generate-default-tag:
     @echo "{{ default_tag }}"
 
 [private]
-generate-build-tags $tag=default_tag:
+generate-build-tags $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
     set -euo pipefail
 
