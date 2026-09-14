@@ -16,6 +16,19 @@ dnf5 install -y --setopt=install_weak_deps=False \
     cosmic-settings \
     cosmic-store
 
+# Browsers are an end-user choice installed through COSMIC Store/Flathub.
+dnf5 remove -y --no-autoremove \
+    firefox \
+    firefox-langpacks
+
+for browser_package in firefox firefox-langpacks; do
+    if rpm -q "${browser_package}" >/dev/null 2>&1; then
+        printf 'error: unwanted host browser RPM remains: %s\n' \
+            "${browser_package}" >&2
+        exit 1
+    fi
+done
+
 # /var is persistent and is not replaced on bootc upgrades. Recreate the
 # runtime state required by COSMIC dependencies on every system with tmpfiles
 # instead of baking package-scriptlet output into the container image.
@@ -30,7 +43,6 @@ systemctl enable cosmic-greeter.service
 
 # Podman is part of the Fedora Atomic/UBlue platform. Distrobox is already
 # included by base-main; enabling the socket makes container workflows ready.
-systemctl enable podman.socket
 
 # Activate the Homebrew integration copied from ghcr.io/ublue-os/brew.
 systemctl preset brew-setup.service

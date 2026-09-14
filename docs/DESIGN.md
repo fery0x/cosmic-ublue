@@ -37,7 +37,7 @@ to make the requested host package boundary explicit.
 | Software browsing | `cosmic-store` | First-party COSMIC app, separate from the session package. |
 | CLI applications | UBlue Homebrew image | Keeps mutable CLI tools outside the immutable host RPM set. |
 | Development containers | inherited base plus enabled `podman.socket` | `base-main` supplies Podman/Distrobox plumbing; cosmic-ublue enables the socket. |
-| General GUI applications | inherited Flatpak/Flathub integration | Avoids baking replaceable end-user apps into the OS image. |
+| General GUI applications and browsers | COSMIC Store / Flatpak / Flathub | Keeps replaceable end-user applications out of the host image; inherited Firefox RPMs are removed. |
 
 Installing the COSMIC package group was rejected for this image because its
 membership is broader and can change independently of cosmic-ublue's intended

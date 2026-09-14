@@ -7,7 +7,14 @@ integration.
 
 The intended software model is:
 
-- graphical applications: Flatpak and Flathub
+- graphical applications, including browsers: COSMIC Store, Flatpak, and Flathub
+
+No web browser is included in the host image. Install your preferred browser
+through COSMIC Store/Flathub after first boot.
+
+Podman and Distrobox remain available, but the rootful Podman API socket is
+not enabled automatically. If an application needs the API, enable the rootless
+user socket with `systemctl --user enable --now podman.socket`.
 - command-line applications: Homebrew
 - development environments: Podman and Distrobox
 - host packages: the desktop, drivers, codecs, and system integration
