@@ -16,6 +16,13 @@ dnf5 install -y --setopt=install_weak_deps=False \
     cosmic-settings \
     cosmic-store
 
+# /var is persistent and is not replaced on bootc upgrades. Recreate the
+# runtime state required by COSMIC dependencies on every system with tmpfiles
+# instead of baking package-scriptlet output into the container image.
+install -Dm0644 \
+    /ctx/cosmic-ublue-tmpfiles.conf \
+    /usr/lib/tmpfiles.d/cosmic-ublue.conf
+
 # base-main can boot to a TTY. cosmic-ublue is a desktop image, so make the
 # graphical target and COSMIC Greeter the default login path.
 systemctl set-default graphical.target
@@ -32,3 +39,11 @@ systemctl preset brew-upgrade.timer
 
 # base-main already configures full Flathub and UBlue update/ujust plumbing.
 dnf5 clean all
+
+# Package installation leaves transient state in /var. It must not be shipped
+# in a bootc image because /var persists independently of image deployments.
+rm -rf \
+    /var/lib/dnf \
+    /var/lib/fprint \
+    /var/lib/greetd \
+    /var/lib/tuned
