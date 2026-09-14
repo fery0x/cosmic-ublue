@@ -1,27 +1,34 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 set -ouex pipefail
 
-# Copy the contents of system_files/ of the git repo to /
-cp -avf "/ctx/system_files"/. /
+# Fedora's cosmic-session package supplies the COSMIC session and its required
+# desktop components, including Files, Terminal and Settings. Keep Settings
+# explicit because its Appearance page is COSMIC's supported theme editor.
+# Edit, Monitor, Player and Store are separate first-party applications, so add
+# them explicitly. Weak dependencies stay disabled to keep the host package set
+# intentional and reproducible.
+dnf5 install -y --setopt=install_weak_deps=False \
+    cosmic-edit \
+    cosmic-monitor \
+    cosmic-player \
+    cosmic-session \
+    cosmic-settings \
+    cosmic-store
 
-### Install packages
+# base-main can boot to a TTY. cosmic-ublue is a desktop image, so make the
+# graphical target and COSMIC Greeter the default login path.
+systemctl set-default graphical.target
+systemctl enable cosmic-greeter.service
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
-
-# this installs a package from fedora repos
-dnf5 install -y tmux
-
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
-
+# Podman is part of the Fedora Atomic/UBlue platform. Distrobox is already
+# included by base-main; enabling the socket makes container workflows ready.
 systemctl enable podman.socket
+
+# Activate the Homebrew integration copied from ghcr.io/ublue-os/brew.
+systemctl preset brew-setup.service
+systemctl preset brew-update.timer
+systemctl preset brew-upgrade.timer
+
+# base-main already configures full Flathub and UBlue update/ujust plumbing.
+dnf5 clean all
